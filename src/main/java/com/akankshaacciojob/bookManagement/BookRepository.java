@@ -1,10 +1,17 @@
 package com.akankshaacciojob.bookManagement;
 
+import org.springframework.stereotype.Repository;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+@Repository
 public class BookRepository {
+
+    public BookRepository() {
+        System.out.println("creating bean of book repo class");
+    }
     Map<Integer, Book> data = new HashMap<>();
 
     public Boolean add(Book book) {

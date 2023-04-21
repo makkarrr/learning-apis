@@ -1,12 +1,21 @@
 package com.akankshaacciojob.bookManagement;
 
-import ch.qos.logback.core.pattern.parser.OptionTokenizer;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.Objects;
 import java.util.Optional;
 
+
+@Service
 public class BookService {
-    BookRepository bookRepository = new BookRepository();
+
+    public BookService() {
+        System.out.println("created bean of book service class");
+    }
+
+    @Autowired
+    BookRepository bookRepository;
     public Boolean addBook(Book book) throws BookAlreadyExistsException{
         Optional<Book> bookOpt = bookRepository.getById(book.getBookId()); // bookId already exists
         if(bookOpt.isPresent()) {
