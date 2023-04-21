@@ -6,6 +6,8 @@ import lombok.Setter;
 @Getter
 @Setter // Lombok dependency
 public class Book {
+
+    public static final String CONTINUE = "Continue";
     private int bookId;
     private String title;
     private String author;

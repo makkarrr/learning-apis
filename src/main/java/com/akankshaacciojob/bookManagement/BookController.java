@@ -1,50 +1,61 @@
 package com.akankshaacciojob.bookManagement;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
 
 @RestController
 public class BookController {
-    Map<Integer, Book> data = new HashMap<>();
+    BookService bookService = new BookService();
 
     @PostMapping("/book")
-    public String addBook(@RequestBody Book book){
-        data.put(book.getBookId(), book);
-        return "added successfully";
+    public ResponseEntity addBook(@RequestBody Book book){
+        try {
+            Boolean added = bookService.addBook(book);
+            return new ResponseEntity("Added successfully", HttpStatus.CREATED); //200
+        } catch(BookAlreadyExistsException ex) {
+            return new ResponseEntity("unable to add book as it already exists", HttpStatus.valueOf(400));
+        } catch(Exception ex) {
+            return new ResponseEntity("Something went wrong", HttpStatus.valueOf(500));
+        }
     }
 
-    @GetMapping("/book") // ? id = 1
-    public Book findBook(@RequestParam int id) {
-        return data.get(id);
+    @GetMapping("/book")
+    public ResponseEntity findBook(@RequestParam int id) {
+        try{
+            Book book = bookService.getBook(id);
+            return new ResponseEntity(book, HttpStatus.OK);
+        } catch(BookNotFoundException e) {
+            return new ResponseEntity("Book not found", HttpStatus.valueOf(404));
+        } catch(Exception ex) {
+            return new ResponseEntity("Something went wrong", HttpStatus.valueOf(500));
+        }
     }
-
-    @GetMapping("/book/{id}") // find-books/1
-    public Book findBookByParam(@PathVariable int id) {
-        return data.get(id);
-    }
-
+//
+//    @GetMapping("/all-books")
+//    public List<Book> getAllBooks() {
+//        return data.values().stream().toList();
+//    }
+//
+//    @GetMapping("/book/{id}") // find-books/1
+//    public Book findBookByParam(@PathVariable int id) {
+//        return data.get(id);
+//    }
+//
     @PutMapping("update-book/{id}")
-    public String updateBook(@PathVariable int id, @RequestParam(required = false) String title, @RequestParam(required = false) String author, @RequestParam(required = false) int pages) {
-        Book book = data.get(id);
-        if(Objects.nonNull(title)) {
-            book.setTitle(title);
-        }
-        if(Objects.nonNull(author)) {
-            book.setAuthor(author);
-        }
-        if(Objects.nonNull(pages)) {
-            book.setPages(pages);
-        }
-        data.put(id,book);
-        return "book updated";
+    public String updateBook(@PathVariable int id, @RequestParam(required = false) String title, @RequestParam(required = false) String author, @RequestParam(required = false) Integer pages) {
+        String response = bookService.updateBook(id, title, author, pages);
+        return response;
     }
 
     @DeleteMapping("/remove-book/{id}")
-    public String deleteBook(@PathVariable int id) {
-        data.remove(id);
-        return "book removed";
+    public ResponseEntity deleteBook(@PathVariable int id) {
+        try {
+            bookService.deleteBook(id);
+            return new ResponseEntity("book removed successfully", HttpStatus.OK);
+        } catch(BookNotFoundException ex) {
+            return new ResponseEntity(ex.getMessage(), HttpStatus.NOT_FOUND);
+        }
     }
 }
